@@ -34,10 +34,15 @@ function Field({ item, value, onChange }: { item: string[]; value: string; onCha
 export default function RegisterPage() {
   const [profile, setProfile] = useState(initialProfile);
   const [photo, setPhoto] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [step, setStep] = useState(0);
   const [preview, setPreview] = useState(false);
   const [consent, setConsent] = useState(false);
-  const registrationId = useMemo(() => `MM-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, []);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [savedRegistrationId, setSavedRegistrationId] = useState("");
+  const temporaryRegistrationId = useMemo(() => `MM-${new Date().getFullYear()}-DRAFT`, []);
+  const registrationId = savedRegistrationId || temporaryRegistrationId;
 
   function update(event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     setProfile(current => ({ ...current, [event.target.name]: event.target.value }));
@@ -46,17 +51,28 @@ export default function RegisterPage() {
   function loadPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    setPhotoFile(file);
     const reader = new FileReader();
     reader.onload = () => setPhoto(String(reader.result));
     reader.readAsDataURL(file);
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     if (step < sections.length - 1) return setStep(step + 1);
     if (!consent) return;
-    setPreview(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSaving(true); setSaveError("");
+    try {
+      const form = new FormData();
+      form.set("profile", JSON.stringify(profile));
+      if (photoFile) form.set("photo", photoFile);
+      const response = await fetch("/api/profiles", { method: "POST", body: form });
+      const data = await response.json() as { registrationId?: string; error?: string };
+      if (!response.ok || !data.registrationId) throw new Error(data.error || "Unable to save the registration.");
+      setSavedRegistrationId(data.registrationId); setPreview(true); window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Unable to save the registration.");
+    } finally { setSaving(false); }
   }
 
   function openWhatsApp() {
@@ -101,7 +117,8 @@ export default function RegisterPage() {
           {section.private && <div className="private-banner"><span>🔒</span><p><strong>Private information</strong><br />This section is for office records only. It will not be included in the shared profile or PDF.</p></div>}
           <div className="form-grid">{section.fields.map(item => <Field key={item[0]} item={item} value={profile[item[0]]} onChange={update} />)}</div>
           {step === sections.length - 1 && <label className="consent-check"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /><span>I confirm these details are correct and consent to creating a matrimony profile. Private details must not be included when the profile is shared.</span></label>}
-          <div className="form-controls">{step > 0 && <button type="button" className="ghost-button" onClick={() => setStep(step - 1)}>← Previous</button>}<button className="button" type="submit" disabled={step === sections.length - 1 && !consent}>{step === sections.length - 1 ? "Create profile preview" : "Save & continue"} →</button></div>
+          {saveError && <p className="form-error" role="alert">{saveError}</p>}
+          <div className="form-controls">{step > 0 && <button type="button" className="ghost-button" onClick={() => setStep(step - 1)} disabled={saving}>← Previous</button>}<button className="button" type="submit" disabled={saving || (step === sections.length - 1 && !consent)}>{saving ? "Saving securely…" : step === sections.length - 1 ? "Save & create profile" : "Save & continue"} →</button></div>
         </form>
       </section>
     </main>

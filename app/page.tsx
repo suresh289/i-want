@@ -33,6 +33,7 @@ export default function Home() {
           <a href="#how">How it works</a>
           <a href="#stories">Success stories</a>
           <a href="#safety">Safety</a>
+          <a href="/admin">Admin</a>
         </nav>
         <div className="header-actions">
           <a className="login" href="#join">Log in</a>

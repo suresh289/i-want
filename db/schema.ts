@@ -1,4 +1,24 @@
-// Intentionally empty by default.
-// Add Drizzle tables here when the site actually needs a database.
-// See examples/d1/db/schema.ts for an opt-in example.
-export {};
+import { sql } from "drizzle-orm";
+import { index, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const profiles = sqliteTable("profiles", {
+  id: text("id").primaryKey(),
+  registrationId: text("registration_id").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  gender: text("gender").notNull(),
+  dateOfBirth: text("date_of_birth").notNull(),
+  caste: text("caste").notNull().default(""),
+  city: text("city").notNull().default(""),
+  district: text("district").notNull().default(""),
+  mobile: text("mobile").notNull(),
+  email: text("email").notNull().default(""),
+  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
+  photoKey: text("photo_key"),
+  details: text("details", { mode: "json" }).$type<Record<string, string>>().notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [
+  index("idx_profiles_status_created").on(table.status, table.createdAt),
+  index("idx_profiles_gender_caste").on(table.gender, table.caste),
+  index("idx_profiles_city").on(table.city),
+]);
