@@ -36,7 +36,7 @@ export default function Home() {
         </nav>
         <div className="header-actions">
           <a className="login" href="#join">Log in</a>
-          <a className="button button-small" href="#join">Create profile</a>
+          <a className="button button-small" href="/register">Create profile</a>
         </div>
       </header>
 
@@ -126,7 +126,7 @@ export default function Home() {
         <div className="safety-grid"><article><span>✓</span><div><h3>Human-verified profiles</h3><p>Every profile is carefully reviewed before it goes live.</p></div></article><article><span>⌾</span><div><h3>Privacy you control</h3><p>Choose exactly who can see your photos and details.</p></div></article><article><span>♧</span><div><h3>Dedicated support</h3><p>Our care team is here to help at every step.</p></div></article></div>
       </section>
 
-      <section className="join" id="join"><div><span className="kicker">YOUR STORY STARTS HERE</span><h2>Ready to meet someone meaningful?</h2><p>Create your profile in just a few minutes. It&apos;s free to get started.</p><a className="button button-light" href="mailto:hello@milanmitra.example">Create your free profile <span>→</span></a><small>No credit card required · Your privacy is protected</small></div></section>
+      <section className="join" id="join"><div><span className="kicker">YOUR STORY STARTS HERE</span><h2>Ready to meet someone meaningful?</h2><p>Create your profile in just a few minutes. It&apos;s free to get started.</p><a className="button button-light" href="/register">Create your free profile <span>→</span></a><small>No credit card required · Your privacy is protected</small></div></section>
 
       <footer><a className="brand footer-brand" href="#top"><span className="brand-mark">M</span><span>{brand}</span></a><p>Thoughtful connections. Beautiful beginnings.</p><nav aria-label="Footer"><a href="#how">How it works</a><a href="#safety">Safety</a><a href="#stories">Success stories</a><a href="mailto:hello@milanmitra.example">Contact</a></nav><span>© 2026 {brand}. All rights reserved.</span></footer>
     </main>
