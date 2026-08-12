@@ -75,35 +75,13 @@ export default function RegisterPage() {
     } finally { setSaving(false); }
   }
 
-  function openWhatsApp() {
-    const message = `Vanakkam, please find the matrimony profile of ${profile.fullName || "our registered member"} (${registrationId}). The attached profile has been prepared with private contact details removed.`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  function openConfirmationEmail() {
+    const subject = `Registration confirmed – ${registrationId}`;
+    const body = `Dear ${profile.fullName},\n\nYour matrimony profile has been registered successfully.\n\nRegistration number: ${registrationId}\nStatus: Awaiting admin review\n\nWe will contact you after verification. Your address and private contact details will never be included in a shared profile without consent.\n\nRegards,\nMilanMitra`;
+    window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
-  function openEmail() {
-    const subject = `Matrimony Profile – ${profile.fullName || registrationId}`;
-    const body = `Hello,\n\nPlease find the matrimony profile of ${profile.fullName || "our registered member"} (${registrationId}). Private address and contact information are not included.\n\nPlease attach the downloaded profile PDF before sending.`;
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  }
-
-  if (preview) return (
-    <main className="profile-preview-page">
-      <header className="form-topbar no-print"><a className="brand" href="/"><span className="brand-mark">M</span><span>MilanMitra</span></a><span className="secure-note">✓ Privacy-safe sharing</span></header>
-      <div className="preview-actions no-print"><button className="ghost-button" onClick={() => setPreview(false)}>← Edit profile</button><div><button className="ghost-button" onClick={openWhatsApp}>Share message on WhatsApp</button><button className="ghost-button" onClick={openEmail}>Prepare email</button><button className="button" onClick={() => window.print()}>Download / Print PDF</button></div></div>
-      <p className="share-help no-print">First save the PDF, then attach it to the prepared WhatsApp message or email.</p>
-      <article className="biodata-sheet">
-        <div className="sheet-header"><div><span className="sheet-kicker">MATRIMONY PROFILE</span><h1>{profile.fullName || "Member profile"}</h1><p>{registrationId} · Created {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p></div><div className="sheet-logo">M</div></div>
-        <div className="sheet-intro"><div className="sheet-photo">{photo ? <img src={photo} alt={profile.fullName} /> : <span>{(profile.fullName || "M").charAt(0)}</span>}</div><div><h2>{profile.fullName || "Name not entered"}</h2><p>{[profile.occupation, profile.education, profile.city].filter(Boolean).join(" · ") || "Profile details"}</p><span className="verified-pill">✓ Registered profile</span></div></div>
-        <SheetSection title="Personal details" data={[["Gender",profile.gender],["Date of birth",profile.dateOfBirth],["Height",profile.height],["Weight",profile.weight],["Complexion",profile.complexion],["Birth place",profile.birthPlace]]} />
-        <SheetSection title="Horoscope details" data={[["Religion",profile.religion],["Community",profile.caste],["Sub-caste",profile.subCaste],["Star",profile.star],["Rasi",profile.rasi],["Dosham",profile.dosham]]} />
-        <SheetSection title="Education & career" data={[["Education",profile.education],["Occupation",profile.occupation],["Workplace",profile.workplace],["Monthly income",profile.monthlyIncome]]} />
-        <SheetSection title="Family" data={[["Father",profile.fatherName],["Mother",profile.motherName],["Siblings",profile.siblings],["Family details",profile.familyDetails],["Property details",profile.propertyDetails]]} />
-        <SheetSection title="Partner expectations" data={[["Looking for",profile.partnerExpectation]]} />
-        <div className="privacy-banner"><strong>Privacy protected</strong><span>Home address, phone number, email and other private contact details are intentionally omitted from this shared profile.</span></div>
-        <footer className="sheet-footer"><strong>MilanMitra</strong><span>Thoughtful connections. Beautiful beginnings.</span><span>{registrationId}</span></footer>
-      </article>
-    </main>
-  );
+  if (preview) return <main className="registration-success"><header className="form-topbar"><a className="brand" href="/"><span className="brand-mark">M</span><span>MilanMitra</span></a></header><section><div className="success-check">✓</div><span className="kicker">REGISTRATION COMPLETE</span><h1>Thank you, {profile.fullName}.</h1><p>Your profile has been saved and is waiting for admin verification.</p><div className="registration-ticket"><span>Registration number</span><strong>{registrationId}</strong><small>Please save this number for future reference.</small></div><div className="success-privacy">🔒 Your address and private contact information are securely stored and will not appear in shared profiles.</div>{profile.email&&<button className="button" onClick={openConfirmationEmail}>Prepare confirmation email →</button>}<a className="ghost-button" href="/">Return to website</a></section></main>;
 
   const section = sections[step];
   return (
@@ -123,10 +101,4 @@ export default function RegisterPage() {
       </section>
     </main>
   );
-}
-
-function SheetSection({ title, data }: { title: string; data: string[][] }) {
-  const visible = data.filter(item => item[1]);
-  if (!visible.length) return null;
-  return <section className="sheet-section"><h3>{title}</h3><div className="sheet-data">{visible.map(([label,value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div></section>;
 }
